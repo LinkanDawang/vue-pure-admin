@@ -2,6 +2,7 @@
 import extraIcon from "./extraIcon.vue";
 import Search from "../search/index.vue";
 import Notice from "../notice/index.vue";
+import FullScreen from "./fullScreen.vue";
 import { isAllEmpty } from "@pureadmin/utils";
 import { useNav } from "@/layout/hooks/useNav";
 import { transformI18n } from "@/plugins/i18n";
@@ -11,6 +12,7 @@ import { getParentPaths, findRouteByPath } from "@/router/utils";
 import { useTranslationLang } from "../../hooks/useTranslationLang";
 import { usePermissionStoreHook } from "@/store/modules/permission";
 import globalization from "@/assets/svg/globalization.svg?component";
+import AccountSettingsIcon from "@iconify-icons/ri/user-settings-line";
 import LogoutCircleRLine from "@iconify-icons/ri/logout-circle-r-line";
 import Setting from "@iconify-icons/ri/settings-3-line";
 import Check from "@iconify-icons/ep/check";
@@ -29,6 +31,7 @@ const {
   userAvatar,
   getDivStyle,
   avatarsStyle,
+  toAccountSettings,
   getDropdownItemStyle,
   getDropdownItemClass
 } = useNav();
@@ -61,13 +64,14 @@ watch(
 <template>
   <div
     v-if="device !== 'mobile'"
-    class="horizontal-header"
     v-loading="usePermissionStoreHook().wholeMenus.length === 0"
+    class="horizontal-header"
   >
     <el-menu
-      router
       ref="menuRef"
+      router
       mode="horizontal"
+      popper-class="pure-scrollbar"
       class="horizontal-header-menu"
       :default-active="defaultActive"
     >
@@ -96,9 +100,7 @@ watch(
     </el-menu>
     <div class="horizontal-header-right">
       <!-- 菜单搜索 -->
-      <Search />
-      <!-- 通知 -->
-      <Notice id="header-notice" />
+      <Search id="header-search" />
       <!-- 国际化 -->
       <el-dropdown id="header-translation" trigger="click">
         <globalization
@@ -111,7 +113,7 @@ watch(
               :class="['dark:!text-white', getDropdownItemClass(locale, 'zh')]"
               @click="translationCh"
             >
-              <span class="check-zh" v-show="locale === 'zh'">
+              <span v-show="locale === 'zh'" class="check-zh">
                 <IconifyIconOffline :icon="Check" />
               </span>
               简体中文
@@ -121,7 +123,7 @@ watch(
               :class="['dark:!text-white', getDropdownItemClass(locale, 'en')]"
               @click="translationEn"
             >
-              <span class="check-en" v-show="locale === 'en'">
+              <span v-show="locale === 'en'" class="check-en">
                 <IconifyIconOffline :icon="Check" />
               </span>
               English
@@ -129,6 +131,10 @@ watch(
           </el-dropdown-menu>
         </template>
       </el-dropdown>
+      <!-- 全屏 -->
+      <FullScreen id="full-screen" />
+      <!-- 消息通知 -->
+      <Notice id="header-notice" />
       <!-- 退出登录 -->
       <el-dropdown trigger="click">
         <span class="el-dropdown-link navbar-bg-hover select-none">
@@ -136,20 +142,27 @@ watch(
           <p v-if="username" class="dark:text-white">{{ username }}</p>
         </span>
         <template #dropdown>
+          <el-dropdown-item @click="toAccountSettings">
+            <IconifyIconOffline
+              :icon="AccountSettingsIcon"
+              style="margin: 5px"
+            />
+            {{ t("buttons.pureAccountSettings") }}
+          </el-dropdown-item>
           <el-dropdown-menu class="logout">
             <el-dropdown-item @click="logout">
               <IconifyIconOffline
                 :icon="LogoutCircleRLine"
                 style="margin: 5px"
               />
-              {{ t("buttons.hsLoginOut") }}
+              {{ t("buttons.pureLoginOut") }}
             </el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
       <span
         class="set-icon navbar-bg-hover"
-        :title="t('buttons.hssystemSet')"
+        :title="t('buttons.pureOpenSystemSet')"
         @click="onPanel"
       >
         <IconifyIconOffline :icon="Setting" />
@@ -180,7 +193,7 @@ watch(
 }
 
 .logout {
-  max-width: 120px;
+  width: 120px;
 
   ::v-deep(.el-dropdown-menu__item) {
     display: inline-flex;
