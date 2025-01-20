@@ -2,7 +2,7 @@
 import { hasAuth, getAuths } from "@/router/utils";
 
 defineOptions({
-  name: "PermissionButton"
+  name: "PermissionButtonRouter"
 });
 </script>
 
